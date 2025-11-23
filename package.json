@@ -40,6 +40,7 @@
     "extends": null
   },
   "dependencies": {
+    "discord-rpc": "^4.0.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
