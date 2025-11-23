@@ -3,6 +3,6 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: 'MythicMobs-Image-to-yaml-code-converter', 
-})
 
+  base: './',
+})

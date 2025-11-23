@@ -1,14 +1,43 @@
 {
-  "name": "mm-image-converter",
+  "name": "mm-image-to-yaml-converter",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "version": "0.1.0",
+  "description": "A tool to convert images to MythicMobs particle YAML code.",
+  "author": "tukuyomil032",
+  "type": "commonjs",
+  "main": "main.js",
   "scripts": {
-    "dev": "vite",
+    "dev:vite": "vite --port 5173",
+    "dev:electron": "electron .",
+    "dev": "concurrently \"npm:dev:vite\" \"wait-on http://localhost:5173 && npm run dev:electron\"",
     "build": "tsc -b && vite build",
+    "build:electron": "electron-builder --mac --win",
+    "dist": "npm run build && npm run build:electron",
     "lint": "eslint .",
     "preview": "vite preview",
     "deploy": "npm run build && gh-pages -d dist"
+  },
+  "build": {
+    "appId": "com.tukuyomil032.mm-image-to-yaml-code-converter",
+    "productName": "MM Image to Yaml Code Converter",
+    "files": [
+      "dist/**/*",
+      "main.js",
+      "preload.js",
+      "package.json"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.icns"
+    },
+    "extends": null
   },
   "dependencies": {
     "react": "^19.2.0",
@@ -20,6 +49,9 @@
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
+    "concurrently": "^9.2.1",
+    "electron": "^39.2.3",
+    "electron-builder": "^26.0.12",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
@@ -27,6 +59,7 @@
     "globals": "^16.5.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "wait-on": "^9.0.3"
   }
 }
