@@ -1,20 +1,26 @@
-# MythicMobs - Image to YAML Code Converter
-:ballot_box_with_check: This tool enables more advanced development using the Minecraft plugin “MythicMobs”.
-It utilizes MythicMobs' [“Particle Mechanism”](https://git.mythiccraft.io/mythiccraft/MythicMobs/-/wikis/skills/mechanics/Particle) to generate code that recreates your uploaded images within the game.
+# MythicMobs - Image to YAML Code Converter Desktop App
+__This tool is a desktop GUI application built from the web application “MythicMobs-Image to yaml-code converter”.__
 
 
 
 ## Technology Stacks
 
-- React 19
+- Electron
 - Node.js 23.4.0
-- TypeScript
+- React 19
 - Vite
+
+## Languages
+
+- TypeScript
+- JavaScript
+- HTML
+- CSS
 
 
 # How to Use
 
-1. Access this project's [GitHub Pages](https://tukuyomil032.github.io/MythicMobs-Image-to-yaml-code-converter/)
+1. Open your Desktop app
 2. Upload your desired image
 3. Set the skill name you want to use for the generated code (skill).
 4. Set the resolution. (Determines particle placement frequency)
