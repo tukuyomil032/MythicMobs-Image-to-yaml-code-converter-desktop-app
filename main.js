@@ -22,8 +22,7 @@ async function setActivity() {
     startTimestamp,                    
     largeImageKey: 'mm_logo', 
     largeImageText: 'MythicMobs - Image to Yaml Code Converter', 
-    smallImageKey: 'app_icon', 
-    smallImageText: 'v0.1.0', 
+    smallImageKey: 'app_icon',  
     instance: false,
   });
 }
