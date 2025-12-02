@@ -1,10 +1,10 @@
 input[type='color'] {
   padding: 0;
   height: 30px;
-  width: 100%; 
+  width: 100%;
   min-width: 40px;
   background-color: transparent;
-  border: 1px solid var(--panel-border); 
+  border: 1px solid var(--panel-border);
   border-radius: 4px;
 }
 
@@ -13,7 +13,7 @@ input[type='number'],
 input[type='text'],
 select {
   width: 100%;
-  padding: 8px 12px; 
+  padding: 8px 12px;
   background-color: var(--input-bg);
   color: var(--text-color);
   border: 1px solid var(--panel-border);
@@ -44,7 +44,7 @@ input[type='number']:focus,
 input[type='text']:focus,
 select:focus {
   outline: none;
-  background-color: rgba(0, 0, 0, 0.4); 
+  background-color: rgba(0, 0, 0, 0.4);
   border-color: var(--accent-color);
   box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
 }
@@ -55,7 +55,7 @@ input[type='range'] {
   appearance: none;
   width: 100%;
   height: 8px;
-  background: rgba(0, 0, 0, 0.3); 
+  background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 5px;
   outline: none;
@@ -70,19 +70,32 @@ input[type='range']::-webkit-slider-thumb {
   border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 50%;
   cursor: pointer;
-  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
   backdrop-filter: blur(5px);
 }
 input[type='range']::-webkit-slider-thumb:hover {
   background-color: rgba(255, 255, 255, 0.5);
   box-shadow: var(--accent-glow);
 }
+input[type='range']::-webkit-slider-thumb:active{
+  background-color: rgba(255, 255, 255, 0.7);
+  transform: scale(1.15);
+}
 
 input[type='checkbox'] {
   width: 1.1em;
   height: 1.1em;
   accent-color: var(--accent-color);
+  transform: scale(1);
+  transition: transform 0.1s ease-in-out;
 }
+input[type='checkbox']:hover {
+  transform: scale(1.1);
+}
+input[type='checkbox']:active {
+  transform: scale(0.9);
+}
+
 .setting-item label[for*='checkbox'] {
   display: flex;
   align-items: center;
@@ -93,7 +106,7 @@ input[type='checkbox'] {
 textarea {
   width: 100%;
   height: 500px;
-  background-color: rgba(0, 0, 0, 0.4); 
+  background-color: rgba(0, 0, 0, 0.4);
   color: #e0e0e0;
   border: 1px solid var(--panel-border);
   border-radius: 8px;
@@ -103,26 +116,110 @@ textarea {
   box-sizing: border-box;
   resize: vertical;
   backdrop-filter: blur(5px);
+  caret-color: var(--accent-color);
 }
 textarea:focus {
   outline: none;
-  background-color: rgba(0, 0, 0, 0.5); 
+  background-color: rgba(0, 0, 0, 0.5);
   border-color: var(--accent-color);
   box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
 }
 
+.loader-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 500px;
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  backdrop-filter: blur(5px);
+  padding: 15px;
+  box-sizing: border-box;
+  position: relative;
+}
+.loader-text {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 16px;
+  color: #EFEFFA;
+  margin-top: 20px;
+  position: absolute;
+  top: calc(50% + 40px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+.loader {
+  position: absolute;
+  top: calc(50% - 32px);
+  left: calc(50% - 32px);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  perspective: 800px;
+}
+.inner {
+  position: absolute;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+.inner.one {
+  left: 0%;
+  top: 0%;
+  animation: rotate-one 1s linear infinite;
+  border-bottom: 3px solid #EFEFFA;
+}
+.inner.two {
+  right: 0%;
+  top: 0%;
+  animation: rotate-two 1s linear infinite;
+  border-bottom: 3px solid #EFEFFA;
+}
+.inner.three {
+  right: 0%;
+  bottom: 0%;
+  animation: rotate-three 1s linear infinite;
+  border-top: 3px solid #EFEFFA;
+}
+@keyframes rotate-one {
+  0% {
+    transform: rotateX(35deg) rotateY(-45deg) rotateZ(0deg);
+  }
+  100% {
+    transform: rotateX(35deg) rotateY(-45deg) rotateZ(360deg);
+  }
+}
+@keyframes rotate-two {
+  0% {
+    transform: rotateX(50deg) rotateY(10deg) rotateZ(0deg);
+  }
+  100% {
+    transform: rotateX(50deg) rotateY(10deg) rotateZ(360deg);
+  }
+}
+@keyframes rotate-three {
+  0% {
+    transform: rotateX(35deg) rotateY(55deg) rotateZ(0deg);
+  }
+  100% {
+    transform: rotateX(35deg) rotateY(55deg) rotateZ(360deg);
+  }
+}
 button {
   padding: 12px 20px;
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.15); 
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 6px;
   transition: transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  
-  background: rgba(0, 0, 0, 0.3); 
+
+  background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
   color: white;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -133,16 +230,16 @@ button {
   border-color: rgba(59, 130, 246, 0.4);
 }
 .generate-button:hover {
-  background: rgba(59, 130, 246, 0.4); 
+  background: rgba(59, 130, 246, 0.4);
   box-shadow: var(--accent-glow), 0 6px 20px rgba(0, 0, 0, 0.3);
   transform: translateY(-2px);
 }
 .generate-button:active {
   transform: translateY(1px) scale(0.98);
-  background: rgba(59, 130, 246, 0.2); 
+  background: rgba(59, 130, 246, 0.2);
 }
 .generate-button:disabled {
-  background: rgba(50, 50, 50, 0.3); 
+  background: rgba(50, 50, 50, 0.3);
   border-color: rgba(85, 85, 85, 0.3);
   color: #aaa;
   cursor: not-allowed;
@@ -157,24 +254,24 @@ button {
   right: 30px;
   padding: 6px 12px;
   font-size: 12px;
-  background: rgba(25, 118, 210, 0.4); 
+  background: rgba(25, 118, 210, 0.4);
   border-color: rgba(25, 118, 210, 0.5);
 }
 .copy-button:hover {
-  background-color: rgba(25, 118, 210, 0.6); 
+  background-color: rgba(25, 118, 210, 0.6);
   transform: scale(1.05);
 }
 
 .clear-button {
   padding: 6px 12px;
   font-size: 12px;
-  width: 100%; 
-  box-sizing: border-box; 
-  background-color: rgba(170, 46, 37, 0.4); 
+  width: 100%;
+  box-sizing: border-box;
+  background-color: rgba(170, 46, 37, 0.4);
   border-color: rgba(170, 46, 37, 0.5);
 }
 .clear-button:hover {
-  background-color: rgba(211, 47, 47, 0.5); 
+  background-color: rgba(211, 47, 47, 0.5);
   transform: scale(1.02);
 }
 
@@ -192,33 +289,33 @@ button {
 }
 
 .tooltip-container label {
-  cursor: help; 
+  cursor: help;
   border-bottom: 1px dotted var(--text-color-muted);
 }
 
 .tooltip-content {
   position: absolute;
-  bottom: calc(100% + 10px); 
+  bottom: calc(100% + 10px);
   left: 50%;
-  transform: translateX(-50%) scale(0.95); 
-  
-  background-color: rgba(30, 30, 40, 0.9); 
+  transform: translateX(-50%) scale(0.95);
+
+  background-color: rgba(30, 30, 40, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   border-radius: 8px;
   padding: 10px 15px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  
+
   color: var(--text-color);
   font-size: 0.85em;
   width: 250px;
   text-align: left;
-  
+
   opacity: 0;
   visibility: hidden;
-  pointer-events: none; 
+  pointer-events: none;
   z-index: 100;
-  
+
   transition: opacity 0.2s 0s, visibility 0s 0.2s, transform 0.2s 0s;
 }
 
@@ -229,10 +326,10 @@ button {
   transition: opacity 0.2s 0.5s, visibility 0s 0.5s, transform 0.2s 0.5s;
 }
 
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
-  -webkit-appearance: none; 
-  margin: 0; 
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .number-input-wrapper {
@@ -242,13 +339,13 @@ input[type=number]::-webkit-outer-spin-button {
 
 .number-input-arrows {
   position: absolute;
-  right: 1px; 
+  right: 1px;
   top: 1px;
   bottom: 1px;
-  width: 20px; 
+  width: 20px;
   display: flex;
   flex-direction: column;
-  opacity: 0; 
+  opacity: 0;
   transition: opacity 0.2s ease-in-out;
 }
 
@@ -257,18 +354,18 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .number-input-arrows button {
-  flex: 1; 
-  background: rgba(50, 50, 50, 0.8); 
+  flex: 1;
+  background: rgba(50, 50, 50, 0.8);
   border: none;
   color: white;
   padding: 0;
-  margin: 1px; 
-  border-radius: 4px; 
+  margin: 1px;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 8px; 
+  font-size: 8px;
   line-height: 1;
   transition: background-color 0.2s;
-  
+
   -webkit-appearance: none;
   appearance: none;
   box-shadow: none;
@@ -283,5 +380,5 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 input[type=number] {
-  padding-right: 25px; 
+  padding-right: 25px;
 }

@@ -121,10 +121,9 @@ export const processImageToYaml = (params: GenerateCodeParams): ProcessResult =>
 
   const centerX = width / 2;
   const centerY = height / 2;
-  
-  // ▼▼▼ 除外色のしきい値を設定（完全な0, 255だと JPEG のノイズに弱いため）▼▼▼
-  const whiteThreshold = 240; // この値よりR,G,Bが「すべて」高いピクセルは白とみなす
-  const blackThreshold = 15;  // この値よりR,G,Bが「すべて」低いピクセルは黒とみなす
+
+  const whiteThreshold = 240;
+  const blackThreshold = 15;
 
   for (let y = 0; y < height; y += step) {
     for (let x = 0; x < width; x += step) {
@@ -139,7 +138,7 @@ export const processImageToYaml = (params: GenerateCodeParams): ProcessResult =>
           continue;
         }
         if (excludeBlack && r < blackThreshold && g < blackThreshold && b < blackThreshold) {
-          continue; 
+          continue;
         }
 
         const offsetX = ((x - centerX) / width) * scale;

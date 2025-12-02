@@ -12,16 +12,12 @@ interface PlacementSettingsProps {
   setMaxParticles: (val: number) => void;
   skillName: string;
   setSkillName: (val: string) => void;
-
   maxParticlesUpProps: any;
   maxParticlesDownProps: any;
-  
-  // --- ▼▼▼ 新機能の props を追加 ▼▼▼ ---
   excludeWhite: boolean;
   setExcludeWhite: (val: boolean) => void;
   excludeBlack: boolean;
   setExcludeBlack: (val: boolean) => void;
-  // --- ▲▲▲ ここまで ▲▲▲ ---
 }
 
 export const PlacementSettings: React.FC<PlacementSettingsProps> = (props) => {
@@ -81,9 +77,6 @@ export const PlacementSettings: React.FC<PlacementSettingsProps> = (props) => {
           </div>
         </div>
       </div>
-
-      {/* --- ▼▼▼ 新機能（除外トグル）のUIを追加 ▼▼▼ --- */}
-      {/* (※標準のチェックボックスを使いますが、`setting-item` が左右に配置してくれます) */}
       <div className="setting-item">
         <TooltipLabel
           label="白に近い色を除外"
@@ -94,10 +87,10 @@ export const PlacementSettings: React.FC<PlacementSettingsProps> = (props) => {
           id="excludeWhite"
           checked={props.excludeWhite}
           onChange={(e) => props.setExcludeWhite(e.target.checked)}
-          className="large-checkbox" // (※もしスタイルがあれば。なくても機能します)
+          className="large-checkbox"
         />
       </div>
-      
+
       <div className="setting-item">
         <TooltipLabel
           label="黒に近い色を除外"
@@ -111,7 +104,6 @@ export const PlacementSettings: React.FC<PlacementSettingsProps> = (props) => {
           className="large-checkbox"
         />
       </div>
-      {/* --- ▲▲▲ ここまで ▲▲▲ --- */}
       
       <div className="setting-item">
         <TooltipLabel

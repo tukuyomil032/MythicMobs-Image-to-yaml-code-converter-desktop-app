@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 
 interface PreviewAreaProps {
   imagePreview: string | null;
@@ -13,7 +13,7 @@ interface PreviewAreaProps {
 }
 
 const drawParticlePreview = (
-  ctx: CanvasRenderingContext2D, 
+  ctx: CanvasRenderingContext2D,
   img: HTMLImageElement,
   props: PreviewAreaProps
 ) => {
@@ -21,14 +21,14 @@ const drawParticlePreview = (
   const { resolution, scale, alphaThreshold, size, useColor, color, particleType } = props;
 
   const canvasWidth = canvas.clientWidth;
-  const aspect = 1; 
+  const aspect = 1;
   const canvasHeight = canvasWidth / aspect;
-  
+
   const dpr = window.devicePixelRatio || 1;
   canvas.width = canvasWidth * dpr;
   canvas.height = canvasHeight * dpr;
   ctx.scale(dpr, dpr);
-  
+
   const drawWidth = canvasWidth;
   const drawHeight = canvasHeight;
 
@@ -38,9 +38,9 @@ const drawParticlePreview = (
   const imgAspect = img.naturalWidth / img.naturalHeight;
   let drawImgWidth = drawWidth;
   let drawImgHeight = drawHeight;
-  if (imgAspect > aspect) { 
+  if (imgAspect > aspect) {
     drawImgHeight = drawWidth / imgAspect;
-  } else { 
+  } else {
     drawImgWidth = drawHeight * imgAspect;
   }
   const imgX = (drawWidth - drawImgWidth) / 2;
@@ -67,27 +67,27 @@ const drawParticlePreview = (
     return;
   }
   const data = imageData.data;
-  
+
   const step = Math.max(1, resolution);
   const particleRadius = (size / scale) * (drawWidth / 20);
 
-  const imgWidth = img.naturalWidth; 
+  const imgWidth = img.naturalWidth;
   for (let y = 0; y < img.naturalHeight; y += step) {
-    for (let x = 0; x < imgWidth; x += step) { 
-      const index = (y * imgWidth + x) * 4; 
+    for (let x = 0; x < imgWidth; x += step) {
+      const index = (y * imgWidth + x) * 4;
       const r = data[index];
       const g = data[index + 1];
       const b = data[index + 2];
       const a = data[index + 3];
 
       if (a >= alphaThreshold) {
-        const drawX = ((x / imgWidth) * drawImgWidth) + imgX; 
+        const drawX = ((x / imgWidth) * drawImgWidth) + imgX;
         const drawY = ((y / img.naturalHeight) * drawImgHeight) + imgY;
 
         if (particleType === 'reddust' && useColor) {
           ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
         } else {
-          ctx.fillStyle = color; 
+          ctx.fillStyle = color;
         }
 
         ctx.beginPath();
@@ -101,22 +101,29 @@ const drawParticlePreview = (
 export const PreviewArea: React.FC<PreviewAreaProps> = (props) => {
   const { imagePreview, imageRef, particleType } = props;
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [shouldAnimate, setShouldAnimate] = useState(false);
+
+  useEffect(() => {
+    if (imagePreview) {
+      setShouldAnimate(true);
+    }
+  }, [imagePreview]);
 
   const isPreviewSupported = particleType === 'reddust';
 
   useEffect(() => {
     if (!previewCanvasRef.current || !imageRef.current || !imagePreview) return;
-    
+
     const ctx = previewCanvasRef.current.getContext('2d');
     if (!ctx) return;
-    
-    const img = imageRef.current; 
-    
+
+    const img = imageRef.current;
+
     if (isPreviewSupported) {
       if (img.complete && img.naturalWidth > 0) {
         drawParticlePreview(ctx, img, props);
       } else {
-        const handleLoad = () => {
+        const handleLoad = ()=> {
           if(img) {
              drawParticlePreview(ctx, img, props);
           }
@@ -129,10 +136,10 @@ export const PreviewArea: React.FC<PreviewAreaProps> = (props) => {
     }
 
   }, [
-    imagePreview, 
-    imageRef, 
+    imagePreview,
+    imageRef,
     props,
-    isPreviewSupported 
+    isPreviewSupported
   ]);
 
 
@@ -147,7 +154,9 @@ export const PreviewArea: React.FC<PreviewAreaProps> = (props) => {
                 ref={imageRef}
                 src={imagePreview}
                 alt="Uploaded preview"
-                crossOrigin="anonymous" 
+                crossOrigin="anonymous"
+                className={shouldAnimate ? 'image-popup' : ''}
+                onAnimationEnd={() => setShouldAnimate(false)}
               />
             ) : (
               <p>Upload Image</p>
@@ -158,11 +167,11 @@ export const PreviewArea: React.FC<PreviewAreaProps> = (props) => {
             {imagePreview && <div className="preview-pane-label">In Game</div>}
             {imagePreview ? (
               <>
-                <canvas 
-                  ref={previewCanvasRef} 
+                <canvas
+                  ref={previewCanvasRef}
                   style={{ display: isPreviewSupported ? 'block' : 'none' }} // サポート時のみ表示
                 ></canvas>
-                
+
                 {!isPreviewSupported && (
                   <div className="preview-disabled-overlay">
                     <span className="disabled-title">In-game preview is disabled.</span>

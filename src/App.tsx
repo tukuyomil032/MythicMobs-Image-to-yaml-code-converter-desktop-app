@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { processImageToYaml } from './YamlCodeProcessor.ts';
-
+import { processImageToYaml, type ProcessResult } from './YamlCodeProcessor.ts';
 import { useStepper } from './hooks/useStepper.ts';
 import { Header } from './components/Header.tsx';
 import { ParticleSettings } from './components/ParticleSettings.tsx';
@@ -35,13 +34,8 @@ function App() {
   const [alphaThreshold, setAlphaThreshold] = useState<number>(128);
   const [maxParticles, setMaxParticles] = useState<number>(2000);
   const [skillName, setSkillName] = useState<string>('ImageParticleSkill');
-  
-  // --- ▼▼▼ 新機能（除外設定）の状態を追加 ▼▼▼ ---
-  // (デフォルトはON（除外する）にしておきます)
   const [excludeWhite, setExcludeWhite] = useState<boolean>(true);
   const [excludeBlack, setExcludeBlack] = useState<boolean>(true);
-  // --- ▲▲▲ ここまで ▲▲▲ ---
-  
   const amountUpProps = useStepper(() => setAmount(a => a + 1));
   const amountDownProps = useStepper(() => setAmount(a => Math.max(1, a - 1)));
   const sizeUpProps = useStepper(() => setSize(s => parseFloat((s + 0.1).toFixed(1))));
@@ -88,189 +82,197 @@ function App() {
         setCopyMessage('Copied!');
         setTimeout(() => setCopyMessage('Copy to Clipboard'), 2000);
       })
-      .catch(err => {
-        console.error('Failed to copy: ', err);
-        setCopyMessage('Failed');
-      });
+  	  .catch(err => {
+  	    console.error('Failed to copy: ', err);
+  	    setCopyMessage('Failed');
+  	  });
   };
   
-  const generateCode = () => {
-    const imgEl = imageRef.current; 
-    if (!imagePreview || !imgEl) { 
-      setError('先に画像をアップロードしてください。');
-      return;
-    }
+  const generateCode = async () => {
+  	const imgEl = imageRef.current; 
+  	if (!imagePreview || !imgEl) { 
+  	  setError('先に画像をアップロードしてください。');
+  	  return;
+  	}
 
-    setIsLoading(true);
-    setError(null);
-    setYamlOutput('');
+  	setIsLoading(true);
+  	setError(null);
+  	setYamlOutput('');
 
-    const particleOptionsMap: Record<string, string[]> = {
-      'reddust': ['color', 'size'], 
-      'mobspell': ['color'],
-      'spell': ['color'],
-      'fallingdust': ['color', 'material'],
-      'dust_color_transition': ['transition', 'size'],
-    };
 
-    const result = processImageToYaml({
-      imageElement: imgEl, 
-      canvasElement: canvasRef.current,
-      resolution, scale, alphaThreshold,
-      skillName, maxParticles,
-      
-      particleType, useColor,
-      amount, size,
-      repeat, repeati,
-      color, color1, color2,
-      material,
-      availableOptions: particleOptionsMap[particleType] || [],
-      
-      // --- ▼▼▼ 新機能の値をロジックに渡す ▼▼▼ ---
-      excludeWhite,
-      excludeBlack,
-      // --- ▲▲▲ ここまで ▲▲▲ ---
-    });
+    const minimumWait = new Promise<void>(resolve => setTimeout(resolve, 3500));
+    const generationTask = new Promise<ProcessResult>((resolve) => {
+      setTimeout(() => {
+  	    const particleOptionsMap: Record<string, string[]> = {
+  	      'reddust': ['color', 'size'], 
+  	      'mobspell': ['color'],
+  	      'spell': ['color'],
+  	      'fallingdust': ['color', 'material'],
+  	      'dust_color_transition': ['transition', 'size'],
+  	    };
 
-    if (result.success) {
-      setYamlOutput(result.yaml);
-    } else {
-      setError(result.error);
-    }
+  	    const result = processImageToYaml({
+  	      imageElement: imgEl, 
+  	      canvasElement: canvasRef.current,
+  	      resolution, scale, alphaThreshold,
+  	      skillName, maxParticles,
+  	       
+  	      particleType, useColor,
+  	      amount, size,
+  	      repeat, repeati,
+  	      color, color1, color2,
+  	      material,
+  	      availableOptions: particleOptionsMap[particleType] || [],
+
+          excludeWhite,
+          excludeBlack,
+  	    });
+        resolve(result);
+      }, 0);
+    });
+
+    try {
+      const [_, result] = await Promise.all([minimumWait, generationTask] as const);
+
+  	  if (result.success) {
+  	    setYamlOutput(result.yaml);
+  	  } else {
+  	    setError(result.error);
+  	  }
+    } catch (e: any) {
+      setError(e.message || '不明なエラーが発生しました。');
+    }
+
     setIsLoading(false);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
+  	e.preventDefault();
+  	e.stopPropagation();
+  	setIsDragging(true);
   };
 
   const handleDragLeave = (e: React.DragEvent<HTMLElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
+  	e.preventDefault();
+  	e.stopPropagation();
+  	setIsDragging(false);
   };
 
   const handleDrop = (e: React.DragEvent<HTMLElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
+  	e.preventDefault();
+  	e.stopPropagation();
+  	setIsDragging(false);
     
-    handleImageFile(e.dataTransfer.files ? e.dataTransfer.files[0] : null);
+  	handleImageFile(e.dataTransfer.files ? e.dataTransfer.files[0] : null);
   };
 
 
   return (
-    <div className="App">
-      <Header />
-
-      <div className="container">
-        <aside className="settings-panel">
-          
-          <div 
-            className={`upload-section ${isDragging ? 'dragging' : ''}`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
-            <h3>1. Upload Image</h3>
-            <input
-              type="file"
-              accept="image/png, image/jpeg"
-              onChange={handleImageUpload}
-              ref={fileInputRef}
-            />
-            {imagePreview && (
-              <button onClick={handleClearImage} className="clear-button">
-                Clear Image
-              </button>
-            )}
-            {isDragging && (
-              <div className="drop-overlay">
-                Drop image here
-              </div>
-            )}
-          </div>
+  	<div className="App">
+  	  <Header />
+  	  <div className="container">
+  	    <aside className="settings-panel">
+  	      <div 
+  	        className={`upload-section ${isDragging ? 'dragging' : ''}`}
+  	        onDragOver={handleDragOver}
+  	        onDragLeave={handleDragLeave}
+  	        onDrop={handleDrop}
+  	      >
+  	        <h3>1. Upload Image</h3>
+  	        <input
+  	          type="file"
+  	          accept="image/png, image/jpeg"
+  	          onChange={handleImageUpload}
+  	          ref={fileInputRef}
+  	        />
+  	        {imagePreview && (
+  	          <button onClick={handleClearImage} className="clear-button">
+  	            Clear Image
+  	          </button>
+  	        )}
+  	        {isDragging && (
+  	          <div className="drop-overlay">
+  	            Drop image here
+  	          </div>
+  	        )}
+  	      </div>
 
 
-          <div className="particle-section">
-            <ParticleSettings 
-              particleType={particleType} setParticleType={setParticleType}
-              amount={amount} setAmount={setAmount}
-              size={size} setSize={setSize}
-              useColor={useColor} setUseColor={setUseColor}
-              color={color} setColor={setColor}
-              color1={color1} setColor1={setColor1}
-              color2={color2} setColor2={setColor2}
-              material={material} setMaterial={setMaterial}
-              repeat={repeat} setRepeat={setRepeat}
-              repeati={repeati} setRepeati={setRepeati}
-              amountUpProps={amountUpProps}
-              amountDownProps={amountDownProps}
-              sizeUpProps={sizeUpProps}
-              sizeDownProps={sizeDownProps}
-              repeatUpProps={repeatUpProps}
-              repeatDownProps={repeatDownProps}
-              repeatiUpProps={repeatiUpProps}
-              repeatiDownProps={repeatiDownProps}
-            />
-          </div>
-          
-          <div className="placement-section">
-            <PlacementSettings
-              resolution={resolution} setResolution={setResolution}
-              scale={scale} setScale={setScale}
-              alphaThreshold={alphaThreshold} setAlphaThreshold={setAlphaThreshold}
-              maxParticles={maxParticles} setMaxParticles={setMaxParticles}
-              skillName={skillName} setSkillName={setSkillName}
-              maxParticlesUpProps={maxParticlesUpProps}
-              maxParticlesDownProps={maxParticlesDownProps}
-              
-              // --- ▼▼▼ 新機能の props を渡す ▼▼▼ ---
-              excludeWhite={excludeWhite}
-              setExcludeWhite={setExcludeWhite}
-              excludeBlack={excludeBlack}
-              setExcludeBlack={setExcludeBlack}
-              // --- ▲▲▲ ここまで ▲▲▲ ---
-            />
-          </div>
+  	      <div className="particle-section">
+  	        <ParticleSettings 
+  	          particleType={particleType} setParticleType={setParticleType}
+  	          amount={amount} setAmount={setAmount}
+  	          size={size} setSize={setSize}
+  	          useColor={useColor} setUseColor={setUseColor}
+  	          color={color} setColor={setColor}
+  	          color1={color1} setColor1={setColor1}
+  	          color2={color2} setColor2={setColor2}
+  	          material={material} setMaterial={setMaterial}
+  	          repeat={repeat} setRepeat={setRepeat}
+  	          repeati={repeati} setRepeati={setRepeati}
+  	          amountUpProps={amountUpProps}
+  	          amountDownProps={amountDownProps}
+  	          sizeUpProps={sizeUpProps}
+  	          sizeDownProps={sizeDownProps}
+  	          repeatUpProps={repeatUpProps}
+  	          repeatDownProps={repeatDownProps}
+  	          repeatiUpProps={repeatiUpProps}
+  	          repeatiDownProps={repeatiDownProps}
+  	        />
+  	      </div>
+  	       
+  	      <div className="placement-section">
+  	        <PlacementSettings
+  	          resolution={resolution} setResolution={setResolution}
+  	          scale={scale} setScale={setScale}
+  	          alphaThreshold={alphaThreshold} setAlphaThreshold={setAlphaThreshold}
+  	          maxParticles={maxParticles} setMaxParticles={setMaxParticles}
+  	          skillName={skillName} setSkillName={setSkillName}
+  	          maxParticlesUpProps={maxParticlesUpProps}
+  	          maxParticlesDownProps={maxParticlesDownProps}
+            excludeWhite={excludeWhite}
+            setExcludeWhite={setExcludeWhite}
+            excludeBlack={excludeBlack}
+            setExcludeBlack={setExcludeBlack}
+  	        />
+  	      </div>
 
-          <div className="generate-section">
-            <h3>4. Generate Code</h3>
-            <button
-              onClick={generateCode}
-              disabled={isLoading || !imagePreview}
-              className="generate-button"
-            >
-              {isLoading ? 'Generating...' : 'Generate YAML Code'}
-            </button>
-          </div>
-        </aside>
+  	      <div className="generate-section">
+  	        <h3>4. Generate Code</h3>
+  	        <button
+  	          onClick={generateCode}
+  	          disabled={isLoading || !imagePreview}
+  	          className="generate-button"
+  	        >
+  	          {isLoading ? 'Generating...' : 'Generate YAML Code'}
+  	        </button>
+  	      </div>
+  	    </aside>
 
-        <main className="result-area">
-          
-          <PreviewArea
-            imagePreview={imagePreview}
-            imageRef={imageRef}
-            resolution={resolution}
-            scale={scale}
-            alphaThreshold={alphaThreshold}
-            size={size}
-            useColor={useColor}
-            color={color}
-            particleType={particleType}
-          />
+  	    <main className="result-area">
+  	       
+  	      <PreviewArea
+  	        imagePreview={imagePreview}
+  	        imageRef={imageRef}
+  	        resolution={resolution}
+  	        scale={scale}
+  	        alphaThreshold={alphaThreshold}
+  	        size={size}
+  	        useColor={useColor}
+  	        color={color}
+  	        particleType={particleType}
+  	      />
 
-          <OutputArea
-            yamlOutput={yamlOutput}
-            error={error}
-            copyMessage={copyMessage}
-            handleCopy={handleCopy}
-          />
-        </main>
-      </div>
-    </div>
+  	      <OutputArea
+  	        yamlOutput={yamlOutput}
+  	        error={error}
+  	        copyMessage={copyMessage}
+  	        handleCopy={handleCopy}
+            isLoading={isLoading}
+  	      />
+  	    </main>
+  	  </div>
+  	</div>
   );
 }
 
